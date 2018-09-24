@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+	<style>
+		.monospace {
+			font-family: monospace;
+		}
+	</style>
+</head>
+<body>
+	<p>
+		<label>Current game :</label>
+		<input id="currentGameInput" type="text"></input>
+		<button id="submitButton">Submit</button>
+	</p>
+
+	<p>
+		<button id="showGameButton">Force show current game</button>
+		<button id="hideGameButton">Force hide current game</button>
+	</p>
+	<script>
+		const currentGameInput = document.querySelector('#currentGameInput');
+		const submitButton = document.querySelector('#submitButton');
+		const showGameButton = document.querySelector('#showGameButton');
+		const hideGameButton = document.querySelector('#hideGameButton');
+
+		const currentGameReplicant = nodecg.Replicant('currentGame');
+
+		currentGameReplicant.on('change', (newValue, oldValue) => {
+			// The value of the Replicant has changed somewhere in NodeCG,
+			// this could be another dashboard panel, a server initiated change,
+			// or the doing of another user accessing your dashboard panel.
+			currentGameInput.value = newValue;
+		});
+
+		submitButton.onclick = () => {
+			// A Replicant can be modified by modifying its `value`.
+			currentGameReplicant.value = currentGameInput.value;
+		};
+
+		showGameButton.onclick = () => {
+			nodecg.sendMessage("forceShowCurrentGame", true);
+		};
+
+		hideGameButton.onclick = () => {
+			nodecg.sendMessage("forceShowCurrentGame", false);
+		};
+	</script>
+</body>
+</html>

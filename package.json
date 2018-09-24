@@ -1,0 +1,42 @@
+{
+  "name": "ping",
+  "version": "0.0.0",
+  "description": "An overlay developped for the futuristic groundbreaking disruptive intuitive lightweight PING live show",
+  "homepage": "http://www.latreve.fr",
+  "author": {
+    "name": "DiFFtY",
+    "email": "diffty@gmail.com",
+    "url": "http://www.freddyclement.com"
+  },
+  "files": [
+    "dashboard",
+    "graphics",
+    "extension.js",
+    "extension"
+  ],
+  "keywords": [
+    "",
+    "nodecg-bundle"
+  ],
+  "nodecg": {
+    "compatibleRange": "^1.1.1",
+    "dashboardPanels": [
+      {
+        "name": "panel",
+        "title": "Panel",
+        "width": 2,
+        "file": "panel.html",
+        "headerColor": "#525F78"
+      }
+    ],
+    "graphics": [
+      {
+        "file": "index.html",
+        "width": 1280,
+        "height": 720
+      }
+    ]
+  },
+  "repository": "https://github.com/nodecg/nodecg.git",
+  "license": "GPL-3.0"
+}

@@ -1,0 +1,123 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Hello World</title>
+</head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="js/pixi.min.js"></script>
+    <script src="js/type.min.js"></script>
+    <script src="text-scrolling.js"></script>
+    <script src="container-scrolling.js"></script>
+    <script src="container-fading.js"></script>
+<body>
+    <script type="text/javascript">
+    //Create a Pixi Application
+    let app = new PIXI.Application({
+        width: 1920, 
+        height: 1080,                       
+        antialias: true, 
+        transparent: true, 
+        resolution: 1
+    });
+
+    var txt1;
+
+    document.body.appendChild(app.view);
+    load()
+
+    function load() {
+        var type_loader = new type.Loader();
+  
+        type_loader.add('brownie-light', 'fonts/BROWNIElight.otf');
+        type_loader.add('brownie-regular', 'fonts/BROWNIEregular.otf');
+  
+        type_loader.load();
+        type_loader.once('loadComplete', setup);
+    }
+
+    function setup() {
+        nodecg.log.info('P I N G — Overlay System');
+        
+        txt1 = new PIXI.Text(
+            "Loading followers...",
+            {fontFamily : "brownie-regular", fontSize: 40, fill : 0xDBF2FF, align : 'center'}
+            );
+
+        txt = new ScrollingContainer(20, 20, 1880, 80, txt1, 20);
+
+        blur_effect = new PIXI.filters.BlurFilter()
+        blur_effect.blur = 8;
+
+        $.ajax({
+            type: "GET",
+            url: "https://api.twitch.tv/helix/users/follows?to_id=27497503",// 38503140",
+            dataType: 'json',
+            headers:  {
+                'Client-ID': "ulv1v7toq6fwfps9pmcrnlg6r6t7ex",
+            },
+            error: function(response) {  },
+            success: function(response) {
+                var lastFollowerId = response.data[0].from_id;
+                getFollowerName(lastFollowerId);
+            }
+        });
+  
+        ///
+        const currentGameReplicant = nodecg.Replicant('currentGame');
+  
+        var txt2 = new PIXI.Text(`Now playing: ${currentGameReplicant.value}`, {fontFamily : "brownie-regular", fontSize: 40, fill : 0xDBF2FF, align : 'center'});
+  
+        currentGameReplicant.on('change', (newValue, oldValue) => {
+            txt2.text = `Now playing\n${newValue}`;
+        });
+        ///
+  
+        fadeObj = new FadingContainer(725, 900, txt2);
+
+        txt2_blured = Object.create(txt2)
+        txt2_blured.filters = [blur_effect];
+
+        fadeObj.addChild(txt2_blured);
+
+        app.stage.addChild(txt);
+        app.stage.addChild(fadeObj);
+  
+        nodecg.listenFor("forceShowCurrentGame", (value, ack) => {
+            if (value == true) {
+                fadeObj.fadeIn();
+            }
+            else {
+                fadeObj.fadeOut();
+            }
+        });
+  
+        app.ticker.add(update);
+    }
+
+    function getFollowerName(followerId) {
+        var lastFollowerName = null;
+
+        $.ajax({
+        type: "GET",
+        url: "https://api.twitch.tv/helix/users?id=" + followerId,
+        dataType: 'json',  
+        headers:  {  
+            'Client-ID': "ulv1v7toq6fwfps9pmcrnlg6r6t7ex",
+        },
+        error: function(response) {  },
+        success: function(response) {
+            lastFollowerName = response.data[0].display_name;
+            txt1.text = "Last follower: " + lastFollowerName;
+            //txt.regenerateContainers();
+        }
+        });
+    }
+
+    function update(delta) {
+
+    }
+
+    </script>
+</body>
+</html>
