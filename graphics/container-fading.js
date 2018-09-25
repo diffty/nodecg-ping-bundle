@@ -1,4 +1,3 @@
-// FADING TEXT WIDGET
 var EFadeMode = {
   NOFADE: 0,
   FADEIN: 1,

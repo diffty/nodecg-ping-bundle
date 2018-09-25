@@ -9,6 +9,7 @@
     <script src="js/type.min.js"></script>
     <script src="text-scrolling.js"></script>
     <script src="container-scrolling.js"></script>
+    <script src="container-sliding.js"></script>
     <script src="container-fading.js"></script>
 <body>
     <script type="text/javascript">
@@ -91,6 +92,22 @@
                 fadeObj.fadeOut();
             }
         });
+
+
+        var txt3 = new PIXI.Text(`Last followers`, {fontFamily : "brownie-regular", fontSize: 40, fill : 0xDBF2FF, align : 'center'});
+
+        var slidingObj = new SlidingContainer(100, 100, txt3, new PIXI.Point(800, 800));
+  
+        app.stage.addChild(slidingObj);
+
+        nodecg.listenFor("slideInTest", (value, ack) => {
+            if (value == true) {
+                slidingObj.slideIn();
+            }
+            else {
+                slidingObj.slideOut();
+            }
+        });
   
         app.ticker.add(update);
     }
@@ -108,7 +125,7 @@
         error: function(response) {  },
         success: function(response) {
             lastFollowerName = response.data[0].display_name;
-            txt1.text = "Last follower: " + lastFollowerName;
+            txt1.text = "Last follower ̶  " + lastFollowerName + " ̶  ";
             //txt.regenerateContainers();
         }
         });

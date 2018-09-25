@@ -18,12 +18,16 @@
 	<p>
 		<button id="showGameButton">Force show current game</button>
 		<button id="hideGameButton">Force hide current game</button>
+		<button id="slideInButton">Test slide in</button>
+		<button id="slideOutButton">Test slide out</button>
 	</p>
 	<script>
 		const currentGameInput = document.querySelector('#currentGameInput');
 		const submitButton = document.querySelector('#submitButton');
 		const showGameButton = document.querySelector('#showGameButton');
 		const hideGameButton = document.querySelector('#hideGameButton');
+		const slideInButton = document.querySelector('#slideInButton');
+		const slideOutButton = document.querySelector('#slideOutButton');
 
 		const currentGameReplicant = nodecg.Replicant('currentGame');
 
@@ -45,6 +49,14 @@
 
 		hideGameButton.onclick = () => {
 			nodecg.sendMessage("forceShowCurrentGame", false);
+		};
+
+		slideInButton.onclick = () => {
+			nodecg.sendMessage("slideInTest", true);
+		};
+
+		slideOutButton.onclick = () => {
+			nodecg.sendMessage("slideInTest", false);
 		};
 	</script>
 </body>
