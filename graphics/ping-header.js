@@ -73,7 +73,7 @@ class PingHeader extends PIXI.Container {
         this.rightContainerAlert = new HeaderPanelContainer(885, 0, 395, 69, null, true);
 
         this.currHeaderInfoTime = 0.0;
-        this.currHeaderAlertTime = 0.0;
+        this.currHeaderAlertTime = -1.0;
 
         this.addChild(this.leftContainerInfo);
         this.addChild(this.rightContainerInfo);
@@ -92,18 +92,18 @@ class PingHeader extends PIXI.Container {
 
             if (this.currHeaderInfoTime > this.currHeaderInfo.duration) {
                 this.currHeaderInfoTime = -1;
-                this.leftContainerInfo.onEndFadeCallback = () => this.setHeaderInfoNext();
-                this.rightContainerInfo.onEndFadeCallback = () => this.setHeaderInfoNext();
+                this.leftContainerInfo.onEndFadeOutCallback = () => this.setHeaderInfoNext();
+                this.rightContainerInfo.onEndFadeOutCallback = () => this.setHeaderInfoNext();
                 this.leftContainerInfo.fadeOut();
                 this.rightContainerInfo.fadeOut();
             }
         }
 
-        if (this.currHeaderAlert) {
+        if (this.currHeaderAlert && this.currHeaderAlertTime != -1) {
             this.currHeaderAlertTime += app.ticker.elapsedMS / 1000.;
 
             if (this.currHeaderAlertTime > this.currHeaderAlert.duration) {
-                this.currHeaderAlertTime = 0;
+                this.currHeaderAlertTime = -1;
                 this.setHeaderAlertNext();
             }
         }
@@ -112,12 +112,23 @@ class PingHeader extends PIXI.Container {
     addInfo(infoObj) {
         this.infoList.push(infoObj);
         if (this.infoList.length == 1) {
-            headerWidget.setHeaderInfoById(0);
+            this.setHeaderInfoById(0);
+        }
+    }
+
+    addAlert(alertObj) {
+        this.alertList.push(alertObj);
+        if (this.alertList.length == 1) {
+            this.setHeaderAlertById(0);
         }
     }
 
     startInfoStayTimer() {
         this.currHeaderInfoTime = 0;
+    }
+
+    startAlertStayTimer() {
+        this.currHeaderAlertTime = 0;
     }
 
     setHeaderInfoById(id) {
@@ -133,14 +144,17 @@ class PingHeader extends PIXI.Container {
     setHeaderInfoNext() {
         this.currHeaderInfoId = (this.currHeaderInfoId + 1) % this.infoList.length;
         this.setHeaderInfoById(this.currHeaderInfoId);
-        this.leftContainerInfo.onEndFadeCallback = () => this.startInfoStayTimer();
-        this.rightContainerInfo.onEndFadeCallback = () => this.startInfoStayTimer();
+        
+        this.leftContainerInfo.onEndFadeInCallback = () => this.startInfoStayTimer();
+        this.rightContainerInfo.onEndFadeInCallback = () => this.startInfoStayTimer();
+        
         this.leftContainerInfo.fadeIn();
         this.rightContainerInfo.fadeIn();
     }
 
     setHeaderAlertNext() {
         this.alertList.shift();
+
         if (this.alertList.length > 0) {
             this.currHeaderAlertId = 0;
             this.setHeaderAlertById(this.currHeaderAlertId);
@@ -148,7 +162,6 @@ class PingHeader extends PIXI.Container {
         else {
             //this.leftContainerAlert.removeChild(this.currHeaderAlert.contentLeft);
             //this.rightContainerAlert.removeChild(this.currHeaderAlert.contentRight);
-            this.currHeaderAlert = null;
 
             this.leftContainerAlert.fadeOut();
             this.rightContainerAlert.fadeOut();
@@ -178,6 +191,9 @@ class PingHeader extends PIXI.Container {
         this.leftContainerAlert.addChild(this.currHeaderAlert.contentLeft);
         this.rightContainerAlert.addChild(this.currHeaderAlert.contentRight);
 
+        this.leftContainerAlert.onEndFadeInCallback = () => this.startAlertStayTimer();
+        this.rightContainerAlert.onEndFadeInCallback = () => this.startAlertStayTimer();
+
         this.leftContainerAlert.fadeIn();
         this.rightContainerAlert.fadeIn();
     }
@@ -194,7 +210,7 @@ class PingHeader extends PIXI.Container {
         );
 
         var headerAlertObj = new HeaderInfo("Alerte_" + title, alertTitleWidget, alertContentWidget, ALERT_DURATION, null);
-        
-        this.setHeaderAlert(headerAlertObj);
+
+        this.addAlert(headerAlertObj);
     }
 }
