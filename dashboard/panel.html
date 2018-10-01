@@ -21,6 +21,12 @@
 		<button id="slideInButton">Test slide in</button>
 		<button id="slideOutButton">Test slide out</button>
 	</p>
+
+	<p>
+		<input id="alertTitleText" type="text"></input>
+		<input id="alertContentText" type="text"></input>
+		<button id="sendAlert">Send alert</button>
+	</p>
 	<script>
 		const currentGameInput = document.querySelector('#currentGameInput');
 		const submitButton = document.querySelector('#submitButton');
@@ -28,6 +34,8 @@
 		const hideGameButton = document.querySelector('#hideGameButton');
 		const slideInButton = document.querySelector('#slideInButton');
 		const slideOutButton = document.querySelector('#slideOutButton');
+		const alertTitleText = document.querySelector('#alertTitleText');
+		const alertContentText = document.querySelector('#alertContentText');
 
 		const currentGameReplicant = nodecg.Replicant('currentGame');
 
@@ -57,6 +65,10 @@
 
 		slideOutButton.onclick = () => {
 			nodecg.sendMessage("slideInTest", false);
+		};
+
+		sendAlert.onclick = () => {
+			nodecg.sendMessage("sendAlert", {title: alertTitleText.value, content: alertContentText.value});
 		};
 	</script>
 </body>
