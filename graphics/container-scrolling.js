@@ -1,6 +1,6 @@
 // INFINITE SCROLLING CONTAINER
 class ScrollingContainer extends PIXI.Container {
-    constructor(x, y, width, height, obj, spacing=0) {
+    constructor(obj, x, y, width, height, spacing=0, noMask=true) {
         super();
 
         this.objList = [];
@@ -10,10 +10,12 @@ class ScrollingContainer extends PIXI.Container {
         this.bounds = new PIXI.Rectangle(0, 0, width, height);
         
         this.setObj(obj);
-
-        this.mask = new PIXI.Graphics();
-        this.addChild(this.mask);
-        this.updateMask();
+        
+        if (!noMask) {
+            this.mask = new PIXI.Graphics();
+            this.addChild(this.mask);
+            this.updateMask();
+        }
 
         this.setTransform(x, y);
 
