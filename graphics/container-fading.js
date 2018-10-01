@@ -19,7 +19,8 @@ class FadingContainer extends PIXI.Container {
 
         this.fadeMode = EFadeMode.NOFADE;
 
-        this.onEndFadeCallback = null;
+        this.onEndFadeInCallback = null;
+        this.onEndFadeOutCallback = null;
     }
 
     setContent(contentWidget) {
@@ -35,37 +36,52 @@ class FadingContainer extends PIXI.Container {
     }
 
     fadeIn() {
+        app.ticker.remove(this.update, this);
         app.ticker.add(this.update, this);
-        this.animTime = 0;
         this.animStartValue = 0;
         this.animEndValue = 1.;
-        this.animCurrValue = this.animStartValue;
         this.fadeMode = EFadeMode.FADEIN;
     }
 
     fadeOut() {
+        app.ticker.remove(this.update, this);
         app.ticker.add(this.update, this);
-        this.animTime = 0;
-        this.animStartValue = 1.;
-        this.animEndValue = 0.;
-        this.animCurrValue = this.animStartValue;
+        this.animStartValue = 0.;
+        this.animEndValue = 1.;
         this.fadeMode = EFadeMode.FADEOUT;
     }
 
     onEndFade() {
         app.ticker.remove(this.update, this);
-        this.animTime = this.animDuration;
-        if (this.onEndFadeCallback != null) {
-            this.onEndFadeCallback();
+
+        if (this.fadeMode == EFadeMode.FADEIN) {
+            this.animTime = this.animDuration;
+        }
+        else {
+            this.animTime = 0;
+        }
+
+        if (this.fadeMode == EFadeMode.FADEIN && this.onEndFadeInCallback != null) {
+            this.onEndFadeInCallback();
+        }
+        if (this.fadeMode == EFadeMode.FADEOUT && this.onEndFadeOutCallback != null) {
+            this.onEndFadeOutCallback();
         }
     }
 
     update(delta) {
-        this.animTime += app.ticker.elapsedMS / 1000.;
+        if (this.fadeMode == EFadeMode.FADEIN) {
+            this.animTime += app.ticker.elapsedMS / 1000.;
+        }
+        else {
+            this.animTime -= app.ticker.elapsedMS / 1000.;   
+        }
+
         //this.animCurrValue = this.animTime / this.animDuration;
         this.animCurrValue = this.animStartValue + (this.animEndValue - this.animStartValue) * (this.animTime / this.animDuration);
 
-        if (this.animTime > this.animDuration) {
+        if (    (this.animTime > this.animDuration && this.fadeMode == EFadeMode.FADEIN) 
+             || (this.animTime < 0                 && this.fadeMode == EFadeMode.FADEOUT)) {
             this.onEndFade();
         }
 
