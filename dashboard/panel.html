@@ -44,10 +44,22 @@
 		const djInstagramInput = document.querySelector('#djInstagramInput');
 		const djInfoSubmitButton = document.querySelector('#djInfoSubmitButton');
 
-		const gameReplicant = nodecg.Replicant('gameName');
-		const djInfoReplicant = nodecg.Replicant('djInfo');
+		const gameNameReplicant = nodecg.Replicant(
+            "gameName",
+            {defaultValue: ""}
+        );
+        const djInfoReplicant = nodecg.Replicant(
+            "djInfo",
+            {
+                defaultValue: {
+                    djName: "",
+                    djSoundcloud: "",
+                    djInstagram: "",
+                }
+            }
+        );
 
-		gameReplicant.on('change', (newValue, oldValue) => {
+		gameNameReplicant.on('change', (newValue, oldValue) => {
 			// The value of the Replicant has changed somewhere in NodeCG,
 			// this could be another dashboard panel, a server initiated change,
 			// or the doing of another user accessing your dashboard panel.
@@ -67,7 +79,7 @@
 
 		gameNameSubmitButton.onclick = () => {
 			// A Replicant can be modified by modifying its `value`.
-			gameReplicant.value = gameNameInput.value;
+			gameNameReplicant.value = gameNameInput.value;
 		};
 
 		djInfoSubmitButton.onclick = () => {
