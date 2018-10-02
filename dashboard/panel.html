@@ -10,61 +10,73 @@
 </head>
 <body>
 	<p>
-		<label>Current game :</label>
-		<input id="currentGameInput" type="text"></input>
-		<button id="submitButton">Submit</button>
+		<h2>Game</h2>
+		<label>Name</label><br />
+		<input id="gameNameInput" type="text"></input>
+		<button id="gameNameSubmitButton">Submit</button>
 	</p>
 
 	<p>
-		<button id="showGameButton">Force show current game</button>
-		<button id="hideGameButton">Force hide current game</button>
-		<button id="slideInButton">Test slide in</button>
-		<button id="slideOutButton">Test slide out</button>
+		<h2>DJ</h2>
+		<label>Name</label><br />
+		<input id="djNameInput" type="text"></input><br />
+		<label>Soundcloud</label><br />
+		<input id="djSoundcloudInput" type="text"></input><br />
+		<label>Instagram</label><br />
+		<input id="djInstagramInput" type="text"></input><br />
+		<button id="djInfoSubmitButton">Submit</button>
 	</p>
 
 	<p>
-		<input id="alertTitleText" type="text"></input>
-		<input id="alertContentText" type="text"></input>
-		<button id="sendAlert">Send alert</button>
+		<h2>Alerts</h2>
+		<input id="alertTitleText" type="text"></input><br />
+		<input id="alertContentText" type="text"></input><br />
+		<button id="sendAlert">Send</button>
 	</p>
+
 	<script>
-		const currentGameInput = document.querySelector('#currentGameInput');
-		const submitButton = document.querySelector('#submitButton');
-		const showGameButton = document.querySelector('#showGameButton');
-		const hideGameButton = document.querySelector('#hideGameButton');
-		const slideInButton = document.querySelector('#slideInButton');
-		const slideOutButton = document.querySelector('#slideOutButton');
+		const gameNameInput = document.querySelector('#gameNameInput');
+		const gameNameSubmitButton = document.querySelector('#gameNameSubmitButton');
 		const alertTitleText = document.querySelector('#alertTitleText');
 		const alertContentText = document.querySelector('#alertContentText');
+		const djNameInput = document.querySelector('#djNameInput');
+		const djSoundcloudInput = document.querySelector('#djSoundcloudInput');
+		const djInstagramInput = document.querySelector('#djInstagramInput');
+		const djInfoSubmitButton = document.querySelector('#djInfoSubmitButton');
 
-		const currentGameReplicant = nodecg.Replicant('currentGame');
+		const gameReplicant = nodecg.Replicant('gameName');
+		const djInfoReplicant = nodecg.Replicant('djInfo');
 
-		currentGameReplicant.on('change', (newValue, oldValue) => {
+		gameReplicant.on('change', (newValue, oldValue) => {
 			// The value of the Replicant has changed somewhere in NodeCG,
 			// this could be another dashboard panel, a server initiated change,
 			// or the doing of another user accessing your dashboard panel.
-			currentGameInput.value = newValue;
+			gameNameInput.value = newValue;
 		});
 
-		submitButton.onclick = () => {
+		djInfoReplicant.on('change', (newValue, oldValue) => {
+			// The value of the Replicant has changed somewhere in NodeCG,
+			// this could be another dashboard panel, a server initiated change,
+			// or the doing of another user accessing your dashboard panel.
+			if (newValue) {
+				djNameInput.value = newValue.djName;
+				djSoundcloudInput.value = newValue.djSoundcloud;
+				djInstagramInput.value = newValue.djInstagram;
+			}
+		});
+
+		gameNameSubmitButton.onclick = () => {
 			// A Replicant can be modified by modifying its `value`.
-			currentGameReplicant.value = currentGameInput.value;
+			gameReplicant.value = gameNameInput.value;
 		};
 
-		showGameButton.onclick = () => {
-			nodecg.sendMessage("forceShowCurrentGame", true);
-		};
-
-		hideGameButton.onclick = () => {
-			nodecg.sendMessage("forceShowCurrentGame", false);
-		};
-
-		slideInButton.onclick = () => {
-			nodecg.sendMessage("slideInTest", true);
-		};
-
-		slideOutButton.onclick = () => {
-			nodecg.sendMessage("slideInTest", false);
+		djInfoSubmitButton.onclick = () => {
+			// A Replicant can be modified by modifying its `value`.
+			djInfoReplicant.value = {
+				djName: djNameInput.value,
+				djSoundcloud: djSoundcloudInput.value,
+				djInstagram: djInstagramInput.value,
+			};
 		};
 
 		sendAlert.onclick = () => {

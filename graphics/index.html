@@ -1,9 +1,9 @@
 <!doctype html>
 <html>
-<head>
-    <meta charset="utf-8">
-    <title>Hello World</title>
-</head>
+    <head>
+        <meta charset="utf-8">
+        <title>Hello World</title>
+    </head>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="js/pixi.min.js"></script>
     <script src="js/type.min.js"></script>
@@ -12,85 +12,139 @@
     <script src="container-sliding.js"></script>
     <script src="container-fading.js"></script>
     <script src="ping-header.js"></script>
-<body>
-    <script type="text/javascript">
-    //Create a Pixi Application
-    let app = new PIXI.Application({
-        width: 1280, 
-        height: 720,                       
-        antialias: true, 
-        transparent: true, 
-        resolution: 1
-    });
+    <script src="twitch-interface.js"></script>
+    <script src="js/filter-glow.js"></script>
 
-    var followersText;
 
-    FONT_STYLE = {fontFamily : "brownie-regular", fontSize: 40, fill : 0xDBF2FF, align : 'left', letterSpacing: -5}
-
-    document.body.appendChild(app.view);
-    
-    load()
-
-    function load() {
-        var typeLoader = new type.Loader();
-  
-        typeLoader.add('brownie-light', 'fonts/BROWNIElight.otf');
-        typeLoader.add('brownie-regular', 'fonts/BROWNIEregular.otf');
-  
-        typeLoader.load();
-        typeLoader.once('loadComplete', setup);
-    }
-
-    function setup() {
-        nodecg.log.info('P I N G — Overlay System');
-
-        headerWidget = new PingHeader();
-
-        app.stage.addChild(headerWidget);
-
-        nodecg.listenFor("sendAlert", (value, ack) => {
-            console.log(value);
-            headerWidget.createAlert(value.title, value.content);
+    <body>
+        <script type="text/javascript">
+        //Create a Pixi Application
+        let app = new PIXI.Application({
+            width: 1280, 
+            height: 720,                       
+            antialias: true, 
+            transparent: true, 
+            resolution: 1
         });
+
+        WATCH_USER_ID = 27497503;  // diffty: 27497503  // 110690086
+        TEXT_STYLE = {fontFamily : "brownie-regular", fontSize: 40, fill : 0xDBF2FF, align : "left", letterSpacing: -5}
+
+        document.body.appendChild(app.view);
         
-        followersText = new PIXI.Text(
-            "Loading followers...",
-            FONT_STYLE
+        load()
+
+        function load() {
+            var typeLoader = new type.Loader();
+      
+            typeLoader.add("brownie-light", "fonts/BROWNIElight.otf");
+            typeLoader.add("brownie-regular", "fonts/BROWNIEregular.otf");
+      
+            typeLoader.load();
+            typeLoader.once("loadComplete", setup);
+        }
+
+        function setup() {
+            nodecg.log.info("P I N G — Overlay System");
+
+            twitchInterface = new TwitchInterface("ulv1v7toq6fwfps9pmcrnlg6r6t7ex");
+            headerWidget = new PingHeader();
+
+            app.stage.addChild(headerWidget);
+
+            nodecg.listenFor("sendAlert", (value, ack) => {
+                console.log(value);
+                headerWidget.createAlert(value.title, value.content);
+            });
+            
+            const gameNameReplicant = nodecg.Replicant("gameName");
+            const djInfoReplicant = nodecg.Replicant("djInfo");
+
+            console.log(djInfoReplicant.value);
+
+            followersText = new PIXI.Text("", TEXT_STYLE);
+            gameNameTextWidget = new PIXI.Text("", TEXT_STYLE);
+            gameNameTextWidget.filters = [new GlowFilter()];
+
+            djInfoTextWidget = new PIXI.Text("", TEXT_STYLE);
+            lastFollowersScrollingWidget = new ScrollingContainer(followersText, 0, 0, 727, 69, 20);
+            
+            updateFollowersTextWidget();
+      
+            gameNameReplicant.on("change", (newValue, oldValue) => {
+                gameNameTextWidget.text = `${newValue}`;
+            });
+      
+            djInfoReplicant.on("change", (newValue, oldValue) => {
+                djInfoTextWidget.text = `${newValue.djName}`;
+            });
+      
+
+            nowPlayingGameTitleWidget = new PIXI.Text("Now Playing", TEXT_STYLE)
+            nowPlayingGameHeaderInfo = new HeaderInfo("NowPlayingGame", gameNameTextWidget, nowPlayingGameTitleWidget, 3, EHeaderInfoAlign.LEFT, EHeaderInfoAlign.RIGHT);
+            headerWidget.addInfo(nowPlayingGameHeaderInfo);
+
+            nowPlayingDjTitleWidget = new PIXI.Text("Now Playing", TEXT_STYLE)
+            nowPlayingDjHeaderInfo = new HeaderInfo("NowPlayingDj", djInfoTextWidget, nowPlayingDjTitleWidget, 3, EHeaderInfoAlign.LEFT, EHeaderInfoAlign.RIGHT);
+            headerWidget.addInfo(nowPlayingDjHeaderInfo);
+
+            followersTitleWidget = new PIXI.Text("Last Followers", TEXT_STYLE)
+            followersHeaderInfo = new HeaderInfo("LastFollowers", lastFollowersScrollingWidget, followersTitleWidget, 3, EHeaderInfoAlign.LEFT, EHeaderInfoAlign.RIGHT);
+            headerWidget.addInfo(followersHeaderInfo);
+
+
+            this.watchFollowersInterval = setInterval(
+                () => {
+                    twitchInterface.watchNewFollowers(
+                        WATCH_USER_ID,
+                        (newFollowerInfo) => {
+                            twitchInterface.getUsersFromId(
+                                [newFollowerInfo.from_id],
+                                (usersInfo) => {
+                                    var userInfo = usersInfo[0];
+
+                                    headerWidget.createAlert(userInfo.display_name, "New Follower");
+
+                                    updateFollowersTextWidget();
+                                }
+                            )
+                        }
+                    )
+                },
+                5000
             );
 
-        txt = new ScrollingContainer(followersText, 0, 0, 727, 79, 20);
+            app.ticker.add(update);
+        }
 
+        function update(delta) {
+
+        }
+
+        function updateFollowersTextWidget() {
+            twitchInterface.getFollowers(
+                WATCH_USER_ID,
+                (followersList) => {
+                    twitchInterface.getUsersFromId(
+                        followersList.map(f => f.from_id),
+                        (userList) => {
+                            followersText.text = userList.map(u => u.display_name).join(" — ");
+                        }
+                    );
+                }
+            )
+        }
+
+        /*
         blur_effect = new PIXI.filters.BlurFilter()
         blur_effect.blur = 8;
 
-        $.ajax({
-            type: "GET",
-            url: "https://api.twitch.tv/helix/users/follows?to_id=27497503",// 38503140",
-            dataType: 'json',
-            headers:  {
-                'Client-ID': "ulv1v7toq6fwfps9pmcrnlg6r6t7ex",
-            },
-            error: function(response) {  },
-            success: function(response) {
-                var lastFollowerId = response.data[0].from_id;
-                getFollowerName(lastFollowerId);
-            }
-        });
-  
-        const currentGameReplicant = nodecg.Replicant('currentGame');
-  
-        var currentGameTextWidget = new PIXI.Text(`${currentGameReplicant.value}`, FONT_STYLE);
-  
-        currentGameReplicant.on('change', (newValue, oldValue) => {
-            currentGameTextWidget.text = `${newValue}`;
-        });
-  
-        fadeObj = new FadingContainer(200, 200, currentGameTextWidget);
+        fadeObj = new FadingContainer(200, 200, gameNameTextWidget);
 
-        currentGameTextWidget_blured = Object.create(currentGameTextWidget)
-        currentGameTextWidget_blured.filters = [blur_effect];
+        gameNameTextWidget_blured = Object.create(gameNameTextWidget)
+        gameNameTextWidget_blured.filters = [blur_effect];
 
-        fadeObj.addChild(currentGameTextWidget_blured);
+        fadeObj.addChild(gameNameTextWidget_blured);
 
         nodecg.listenFor("forceShowCurrentGame", (value, ack) => {
             if (value == true) {
@@ -100,43 +154,8 @@
                 fadeObj.fadeOut();
             }
         });
-
-        nowPlayingTitleWidget = new PIXI.Text("Now Playing", FONT_STYLE)
-        nowPlayingHeaderInfo = new HeaderInfo("NowPlaying", currentGameTextWidget, nowPlayingTitleWidget, 3);
-
-        followersTitleWidget = new PIXI.Text("Last Followers", FONT_STYLE)
-        followersHeaderInfo = new HeaderInfo("LastFollowers", txt, followersTitleWidget, 3);
-
-        headerWidget.addInfo(nowPlayingHeaderInfo);
-        headerWidget.addInfo(followersHeaderInfo);
-
-
-        app.ticker.add(update);
-    }
-
-    function getFollowerName(followerId) {
-        var lastFollowerName = null;
-
-        $.ajax({
-        type: "GET",
-        url: "https://api.twitch.tv/helix/users?id=" + followerId,
-        dataType: 'json',  
-        headers:  {  
-            'Client-ID': "ulv1v7toq6fwfps9pmcrnlg6r6t7ex",
-        },
-        error: function(response) {  },
-        success: function(response) {
-            lastFollowerName = response.data[0].display_name;
-            followersText.text = lastFollowerName;
-            //txt.regenerateContainers();
-        }
-        });
-    }
-
-    function update(delta) {
-
-    }
-
-    </script>
-</body>
+        */
+        </script>
+    </body>
 </html>
+
