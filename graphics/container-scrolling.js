@@ -64,7 +64,7 @@ class ScrollingContainer extends PIXI.Container {
         let currXPos = 0;
 
         this.renderTexture = new PIXI.RenderTexture(this.obj.texture);
-        this.renderTexture.resize(this.obj.width + 100, this.obj.height + 100, false);
+        this.renderTexture.resize(this.obj.width, this.obj.height, false);
 
         while (currXPos < this.bounds.width + this.obj.width) {
             let baseDrawObj = new PIXI.Sprite(this.renderTexture);
