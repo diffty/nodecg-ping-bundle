@@ -9,24 +9,28 @@ var EHeaderInfoAlign = {
 }
 
 class HeaderInfo {
-    constructor(name, contentLeft, contentRight, duration, align = EHeaderInfoAlign.LEFT) {
+    constructor(name, contentLeft, contentRight, duration, contentLeftAlign = EHeaderInfoAlign.LEFT, contentRightAlign = EHeaderInfoAlign.LEFT) {
         this.name = name;
         this.duration = duration;
         this.contentLeft = contentLeft;
         this.contentRight = contentRight;
-        this.align = EHeaderInfoAlign.LEFT;
+        this.contentLeftAlign = contentLeftAlign;
+        this.contentRightAlign = contentRightAlign;
     }
 }
 
 var ALERT_COLOR = 0x304895;
 var ALERT_DURATION = 3;
+var MARGIN = 15
+
 
 class HeaderPanelContainer extends FadingContainer {
-    constructor(x, y, width, height, contentWidget, isAlert) {
+    constructor(x, y, width, height, contentWidget, margin=0, isAlert=false) {
         super(x, y, contentWidget);
 
         this.animDuration = 0.5;
 
+        this.margin = margin;
         this.isAlert = isAlert;
 
         this.bounds = new PIXI.Rectangle(0, 0, width, height);
@@ -51,6 +55,14 @@ class HeaderPanelContainer extends FadingContainer {
         this.mask.clear();
         this.mask.drawRect(0, 0, this.bounds.width, this.bounds.height);
     }
+
+    setContent(newContentWidget) {
+        super.setContent(newContentWidget);
+        if (newContentWidget) {
+            //newContentWidget.x = this.margin;
+            //newContentWidget.y = this.margin;
+        }
+    }
 }
 
 
@@ -66,11 +78,11 @@ class PingHeader extends PIXI.Container {
 
         this.currHeaderAlert = null;
 
-        this.leftContainerInfo = new HeaderPanelContainer(0, 0, 727, 69);
-        this.rightContainerInfo = new HeaderPanelContainer(885, 0, 395, 69);
+        this.leftContainerInfo = new HeaderPanelContainer(0, 0, 727, 69, null, MARGIN);
+        this.rightContainerInfo = new HeaderPanelContainer(885, 0, 395, 69, null, MARGIN);
 
-        this.leftContainerAlert = new HeaderPanelContainer(0, 0, 727, 69, null, true);
-        this.rightContainerAlert = new HeaderPanelContainer(885, 0, 395, 69, null, true);
+        this.leftContainerAlert = new HeaderPanelContainer(0, 0, 727, 69, null, MARGIN, true);
+        this.rightContainerAlert = new HeaderPanelContainer(885, 0, 395, 69, null, MARGIN, true);
 
         this.currHeaderInfoTime = 0.0;
         this.currHeaderAlertTime = -1.0;
@@ -110,6 +122,32 @@ class PingHeader extends PIXI.Container {
     }
 
     addInfo(infoObj) {
+        if (infoObj.contentLeftAlign == EHeaderInfoAlign.RIGHT) {
+            infoObj.contentLeft.setTransform(
+                infoObj.contentLeft.x + this.leftContainerInfo.bounds.width - infoObj.contentLeft.width - MARGIN,
+                infoObj.contentLeft.y + MARGIN
+            );
+        }
+        else {
+            infoObj.contentLeft.setTransform(
+                infoObj.contentLeft.x + MARGIN,
+                infoObj.contentLeft.y + MARGIN
+            );
+        }
+
+        if (infoObj.contentRightAlign == EHeaderInfoAlign.RIGHT) {
+            infoObj.contentRight.setTransform(
+                infoObj.contentRight.x + this.rightContainerInfo.bounds.width - infoObj.contentRight.width - MARGIN,
+                infoObj.contentRight.y + MARGIN
+            );
+        }
+        else {
+            infoObj.contentRight.setTransform(
+                infoObj.contentRight.x + MARGIN,
+                infoObj.contentRight.y + MARGIN
+            );
+        }
+
         this.infoList.push(infoObj);
         if (this.infoList.length == 1) {
             this.setHeaderInfoById(0);
@@ -117,6 +155,32 @@ class PingHeader extends PIXI.Container {
     }
 
     addAlert(alertObj) {
+        if (alertObj.contentLeftAlign == EHeaderInfoAlign.RIGHT) {
+            alertObj.contentLeft.setTransform(
+                alertObj.contentLeft.x + this.leftContainerAlert.bounds.width - alertObj.contentLeft.width - MARGIN,
+                alertObj.contentLeft.y + MARGIN
+            );
+        }
+        else {
+            alertObj.contentLeft.setTransform(
+                alertObj.contentLeft.x + MARGIN,
+                alertObj.contentLeft.y + MARGIN
+            );
+        }
+
+        if (alertObj.contentRightAlign == EHeaderInfoAlign.RIGHT) {
+            alertObj.contentRight.setTransform(
+                alertObj.contentRight.x + this.rightContainerAlert.bounds.width - alertObj.contentRight.width - MARGIN,
+                alertObj.contentRight.y + MARGIN
+            );
+        }
+        else {
+            alertObj.contentRight.setTransform(
+                alertObj.contentRight.x + MARGIN,
+                alertObj.contentRight.y + MARGIN
+            );
+        }
+
         this.alertList.push(alertObj);
         if (this.alertList.length == 1) {
             this.setHeaderAlertById(0);
@@ -169,27 +233,27 @@ class PingHeader extends PIXI.Container {
     }
 
     setHeaderInfo(headerInfoObj) {
-        if (this.currHeaderInfo != null) {
+        /*if (this.currHeaderInfo != null) {
             this.leftContainerInfo.removeChild(this.currHeaderInfo.contentLeft);
             this.rightContainerInfo.removeChild(this.currHeaderInfo.contentRight);
-        }
+        }*/
 
         this.currHeaderInfo = headerInfoObj;
 
-        this.leftContainerInfo.addChild(this.currHeaderInfo.contentLeft);
-        this.rightContainerInfo.addChild(this.currHeaderInfo.contentRight);
+        this.leftContainerInfo.setContent(this.currHeaderInfo.contentLeft);
+        this.rightContainerInfo.setContent(this.currHeaderInfo.contentRight);
     }
 
     setHeaderAlert(headerAlertObj) {
-        if (this.currHeaderAlert != null) {
+        /*if (this.currHeaderAlert != null) {
             this.leftContainerAlert.removeChild(this.currHeaderAlert.contentLeft);
             this.rightContainerAlert.removeChild(this.currHeaderAlert.contentRight);
-        }
+        }*/
 
         this.currHeaderAlert = headerAlertObj;
 
-        this.leftContainerAlert.addChild(this.currHeaderAlert.contentLeft);
-        this.rightContainerAlert.addChild(this.currHeaderAlert.contentRight);
+        this.leftContainerAlert.setContent(this.currHeaderAlert.contentLeft);
+        this.rightContainerAlert.setContent(this.currHeaderAlert.contentRight);
 
         this.leftContainerAlert.onEndFadeInCallback = () => this.startAlertStayTimer();
         this.rightContainerAlert.onEndFadeInCallback = () => this.startAlertStayTimer();
@@ -201,15 +265,20 @@ class PingHeader extends PIXI.Container {
     createAlert(title, content) {
         var alertTitleWidget = new PIXI.Text(
             title,
-            FONT_STYLE,
+            TEXT_STYLE,
         );
 
         var alertContentWidget = new PIXI.Text(
             content,
-            FONT_STYLE,
+            TEXT_STYLE,
         );
 
-        var headerAlertObj = new HeaderInfo("Alerte_" + title, alertTitleWidget, alertContentWidget, ALERT_DURATION, null);
+        var headerAlertObj = new HeaderInfo(
+            "Alerte_" + title,
+            alertTitleWidget,
+            alertContentWidget,
+            ALERT_DURATION,
+            EHeaderInfoAlign.LEFT, EHeaderInfoAlign.RIGHT);
 
         this.addAlert(headerAlertObj);
     }
