@@ -13,7 +13,7 @@
     <script src="container-fading.js"></script>
     <script src="ping-header.js"></script>
     <script src="twitch-interface.js"></script>
-    <script src="js/filter-glow.js"></script>
+    <script src="js/pixi-filters.js"></script>
 
 
     <body>
@@ -28,7 +28,7 @@
         });
 
         WATCH_USER_ID = 27497503;  // diffty: 27497503  // 110690086
-        TEXT_STYLE = {fontFamily : "brownie-regular", fontSize: 40, fill : 0xDBF2FF, align : "left", letterSpacing: -5}
+        TEXT_STYLE = {fontFamily : "brownie-regular", fontSize: 40, fill : 0xE5E5E5, align : "left", letterSpacing: -5};       // 0xDBF2FF
 
         document.body.appendChild(app.view);
         
@@ -53,30 +53,42 @@
             app.stage.addChild(headerWidget);
 
             nodecg.listenFor("sendAlert", (value, ack) => {
-                console.log(value);
                 headerWidget.createAlert(value.title, value.content);
             });
             
-            const gameNameReplicant = nodecg.Replicant("gameName");
-            const djInfoReplicant = nodecg.Replicant("djInfo");
-
-            console.log(djInfoReplicant.value);
+            const gameNameReplicant = nodecg.Replicant(
+                "gameName",
+                {defaultValue: ""}
+            );
+            const djInfoReplicant = nodecg.Replicant(
+                "djInfo",
+                {
+                    defaultValue: {
+                        djName: "",
+                        djSoundcloud: "",
+                        djInstagram: "",
+                    }
+                }
+            );
 
             followersText = new PIXI.Text("", TEXT_STYLE);
             gameNameTextWidget = new PIXI.Text("", TEXT_STYLE);
-            gameNameTextWidget.filters = [new GlowFilter()];
-
             djInfoTextWidget = new PIXI.Text("", TEXT_STYLE);
+
             lastFollowersScrollingWidget = new ScrollingContainer(followersText, 0, 0, 727, 69, 20);
-            
+
             updateFollowersTextWidget();
       
             gameNameReplicant.on("change", (newValue, oldValue) => {
-                gameNameTextWidget.text = `${newValue}`;
+                if (newValue) {
+                    gameNameTextWidget.text = `${newValue}`;
+                }
             });
       
             djInfoReplicant.on("change", (newValue, oldValue) => {
-                djInfoTextWidget.text = `${newValue.djName}`;
+                if (newValue) {
+                    djInfoTextWidget.text = `${newValue.djName}`;
+                }
             });
       
 
@@ -91,6 +103,17 @@
             followersTitleWidget = new PIXI.Text("Last Followers", TEXT_STYLE)
             followersHeaderInfo = new HeaderInfo("LastFollowers", lastFollowersScrollingWidget, followersTitleWidget, 3, EHeaderInfoAlign.LEFT, EHeaderInfoAlign.RIGHT);
             headerWidget.addInfo(followersHeaderInfo);
+
+
+            glow_effect = new PIXI.filters.GlowFilter(15, 5, 0, 0x3D40A2, 0.5)
+            
+            followersText.filters = [glow_effect];
+            gameNameTextWidget.filters = [glow_effect];
+            djInfoTextWidget.filters = [glow_effect];
+            lastFollowersScrollingWidget.filters = [new PIXI.filters.GlowFilter(15, 1, 0, 0x3D40A2, 0.5)];
+            nowPlayingGameTitleWidget.filters = [glow_effect];
+            nowPlayingDjTitleWidget.filters = [glow_effect];
+            followersTitleWidget.filters = [glow_effect];
 
 
             this.watchFollowersInterval = setInterval(
