@@ -34,6 +34,14 @@
 		<button id="sendAlert">Send</button>
 	</p>
 
+	<p>
+		<h2>Countdown</h2>
+		<input id="countdownHourInput" type="text"></input><br />
+		<input id="countdownMinuteInput" type="text"></input><br />
+		<input id="countdownSecondInput" type="text"></input><br />
+		<button id="countdownSubmitButton">Send</button>
+	</p>
+
 	<script>
 		const gameNameInput = document.querySelector('#gameNameInput');
 		const gameNameSubmitButton = document.querySelector('#gameNameSubmitButton');
@@ -43,6 +51,10 @@
 		const djSoundcloudInput = document.querySelector('#djSoundcloudInput');
 		const djInstagramInput = document.querySelector('#djInstagramInput');
 		const djInfoSubmitButton = document.querySelector('#djInfoSubmitButton');
+		const countdownHourInput = document.querySelector('#countdownHourInput');
+		const countdownMinuteInput = document.querySelector('#countdownMinuteInput');
+		const countdownSecondInput = document.querySelector('#countdownSecondInput');
+		const countdownSubmitButton = document.querySelector('#countdownSubmitButton');
 
 		const gameNameReplicant = nodecg.Replicant(
             "gameName",
@@ -57,6 +69,9 @@
                     djInstagram: "",
                 }
             }
+        );
+        const contdownReplicant = nodecg.Replicant(
+            "countdownTimestamp", { defaultValue: -1 }
         );
 
 		gameNameReplicant.on('change', (newValue, oldValue) => {
@@ -89,6 +104,17 @@
 				djSoundcloud: djSoundcloudInput.value,
 				djInstagram: djInstagramInput.value,
 			};
+		};
+
+		countdownSubmitButton.onclick = () => {
+			// A Replicant can be modified by modifying its `value`.
+			var currDate = new Date();
+			
+			var newDate = new Date();
+			newDate.setHours(countdownHourInput.value);
+			newDate.setMinutes(countdownMinuteInput.value);
+			newDate.setSeconds(countdownSecondInput.value);
+			contdownReplicant.value = newDate.getTime();
 		};
 
 		sendAlert.onclick = () => {

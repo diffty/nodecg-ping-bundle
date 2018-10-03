@@ -13,6 +13,7 @@
     <script src="container-fading.js"></script>
     <script src="ping-header.js"></script>
     <script src="twitch-interface.js"></script>
+    <script src="countdown-widget.js"></script>
     <script src="js/pixi-filters.js"></script>
 
 
@@ -70,6 +71,10 @@
                     }
                 }
             );
+            const countdownReplicant = nodecg.Replicant(
+                "countdownTimestamp",
+                { defaultValue: -1 }
+            );
 
             followersText = new PIXI.Text("", TEXT_STYLE);
             gameNameTextWidget = new PIXI.Text("", TEXT_STYLE);
@@ -77,20 +82,14 @@
 
             lastFollowersScrollingWidget = new ScrollingContainer(followersText, 0, 0, 727, 69, 20);
 
+
             updateFollowersTextWidget();
       
-            gameNameReplicant.on("change", (newValue, oldValue) => {
-                if (newValue) {
-                    gameNameTextWidget.text = `${newValue}`;
-                }
-            });
-      
-            djInfoReplicant.on("change", (newValue, oldValue) => {
-                if (newValue) {
-                    djInfoTextWidget.text = `${newValue.djName}`;
-                }
-            });
-      
+
+            countdownTitleWidget = new PIXI.Text("Time Before Start", TEXT_STYLE)
+            countdownWidget = new CountdownWidget(0, 0)
+            countdownHeaderInfo = new HeaderInfo("TimeBeforeStart", countdownWidget, countdownTitleWidget, 3, EHeaderInfoAlign.LEFT, EHeaderInfoAlign.RIGHT);
+            headerWidget.addInfo(countdownHeaderInfo);
 
             nowPlayingGameTitleWidget = new PIXI.Text("Now Playing", TEXT_STYLE)
             nowPlayingGameHeaderInfo = new HeaderInfo("NowPlayingGame", gameNameTextWidget, nowPlayingGameTitleWidget, 3, EHeaderInfoAlign.LEFT, EHeaderInfoAlign.RIGHT);
@@ -105,6 +104,25 @@
             headerWidget.addInfo(followersHeaderInfo);
 
 
+            gameNameReplicant.on("change", (newValue, oldValue) => {
+                if (newValue) {
+                    gameNameTextWidget.text = `${newValue}`;
+                }
+            });
+      
+            djInfoReplicant.on("change", (newValue, oldValue) => {
+                if (newValue) {
+                    djInfoTextWidget.text = `${newValue.djName}`;
+                }
+            });
+      
+            countdownReplicant.on("change", (newValue, oldValue) => {
+                if (newValue) {
+                    countdownWidget.setTimeLimit(newValue);
+                }
+            });
+
+
             glow_effect = new PIXI.filters.GlowFilter(15, 5, 0, 0x3D40A2, 0.5)
             
             followersText.filters = [glow_effect];
@@ -114,6 +132,9 @@
             nowPlayingGameTitleWidget.filters = [glow_effect];
             nowPlayingDjTitleWidget.filters = [glow_effect];
             followersTitleWidget.filters = [glow_effect];
+
+            countdownTitleWidget.filters = [glow_effect];
+            countdownWidget.filters = [glow_effect];
 
 
             this.watchFollowersInterval = setInterval(
