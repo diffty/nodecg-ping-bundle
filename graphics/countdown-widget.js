@@ -32,6 +32,7 @@ class CountdownWidget extends PIXI.Container {
 			}
 		}
 		else {
+			this.alpha = 1;
 			var hours = Math.floor((timeRemaining / 1000) / 3600);
 			var minutes = Math.floor((timeRemaining / 1000) / 60);
 			var seconds = Math.floor((timeRemaining / 1000) % 60);

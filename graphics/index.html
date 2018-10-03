@@ -29,24 +29,28 @@
             resolution: 1
         });
 
-        TEXT_COLOR = 0xFFFFFF
-        GLOW_COLOR = 0x474747
-        TEXT_ALERT_COLOR = 0xFF94E8   //0xF369CE
-        GLOW_ALERT_COLOR = 0x430C2F
+        WATCH_USER_ID = 27497503;  // diffty: 27497503  // 110690086
 
-        WATCH_USER_ID = 110690086;  // diffty: 27497503  // 110690086
+        TEXT_COLOR = 0xFFFFFF
+        GLOW_COLOR = 0x4033A6
+        TEXT_ALERT_COLOR = 0xFF94E8   //0xF369CE
+        GLOW_ALERT_COLOR = 0x681349
+
         TEXT_STYLE = {
             fontFamily : "brownie-regular",fontSize: 40, fill : TEXT_COLOR, align : "left", letterSpacing: -5
-            };       // 0xDBF2FF   // > E5E5E5
+        };       // 0xDBF2FF   // > E5E5E5
+
         TEXT_ALERT_STYLE = {
             fontFamily : "brownie-regular",
             fontSize: 40,
-            fill : 0x9B1B6C,
+            //fill : 0x9B1B6C,
+            fill: 0xFFFFFF,
             align : "left",
             letterSpacing: -5,
-            strokeThickness: 2,
-            stroke: TEXT_ALERT_COLOR,
+            //strokeThickness: 2,
+            //stroke: TEXT_ALERT_COLOR,
         };       // 0xDBF2FF   // > E5E5E5
+
         LINK_STYLE = {fontFamily : "brownie-light", fontSize: 22, fill : TEXT_COLOR, align : "left", letterSpacing: -2};       // 0xDBF2FF   // > E5E5E5
 
         document.body.appendChild(app.view);
@@ -106,11 +110,6 @@
             countdownWidget = new CountdownWidget(0, 0)
             countdownHeaderInfo = new HeaderInfo("TimeBeforeStart", countdownWidget, countdownTitleWidget, 3, EHeaderInfoAlign.LEFT, EHeaderInfoAlign.RIGHT);
             headerWidget.addInfo(countdownHeaderInfo);
-            gameNameReplicant.on("change", (newValue, oldValue) => {
-                if (newValue) {
-                    gameNameTextWidget.text = `${newValue}`;
-                }
-            });
       
             // TOOD: a refacto
             djNameTextWidget = new PIXI.Text("", TEXT_STYLE);
@@ -149,6 +148,12 @@
                     djSoundcloudTextWidget.text = `${newValue.djSoundcloud}`;
                     djInstagramTextWidget.text = `${newValue.djInstagram}`;
                     updateDjInfoPosition();
+                }
+            });
+
+            gameNameReplicant.on("change", (newValue, oldValue) => {
+                if (newValue) {
+                    gameNameTextWidget.text = `${newValue}`;
                 }
             });
             // End TODO
