@@ -19,7 +19,8 @@ class HeaderInfo {
     }
 }
 
-var ALERT_COLOR = 0x304895;
+var ALERT_SYMBOL_COLOR = 0x000000;     // 0x304895;  //3E070F
+var ALERT_TEXT_COLOR = 0x000000;     // 0x304895;
 var ALERT_DURATION = 3;
 var MARGIN = 15
 
@@ -35,7 +36,7 @@ class HeaderPanelContainer extends FadingContainer {
 
         this.bounds = new PIXI.Rectangle(0, 0, width, height);
 
-        this.bg = new PIXI.Graphics().beginFill(ALERT_COLOR, 1);
+        this.bg = new PIXI.Graphics().beginFill(ALERT_TEXT_COLOR, 1);
         this.bg.drawRect(0, 0, this.bounds.width, this.bounds.height);
         this.bg.endFill();
 
@@ -55,13 +56,39 @@ class HeaderPanelContainer extends FadingContainer {
         this.mask.clear();
         this.mask.drawRect(0, 0, this.bounds.width, this.bounds.height);
     }
+}
 
-    setContent(newContentWidget) {
-        super.setContent(newContentWidget);
-        if (newContentWidget) {
-            //newContentWidget.x = this.margin;
-            //newContentWidget.y = this.margin;
+
+class StatusContainer extends FadingContainer {
+    constructor(x, y, contentWidget, contentOffsetX=0, contentOffsetY=0, isAlert=false) {
+        super(x, y, contentWidget);
+
+        this.animDuration = 0.5;
+
+        this.isAlert = isAlert;
+
+        if (isAlert) {
+            var bgColor = ALERT_SYMBOL_COLOR;
+            this.alpha = 0;
         }
+        else {
+            var bgColor = 0x000000;
+        }
+
+        this.bg = new PIXI.Graphics().beginFill(bgColor, 1);
+        this.bg.drawPolygon([
+            new PIXI.Point(0, 0),
+            new PIXI.Point(288, 0),
+            new PIXI.Point(144, 151),
+            new PIXI.Point(0, 0),
+        ])
+
+        this.bg.endFill();
+
+        contentWidget.x += contentOffsetX;
+        contentWidget.y += contentOffsetY;
+
+        this.addChildAt(this.bg, 0);
     }
 }
 
@@ -84,6 +111,25 @@ class PingHeader extends PIXI.Container {
         this.leftContainerAlert = new HeaderPanelContainer(0, 0, 727, 69, null, MARGIN, true);
         this.rightContainerAlert = new HeaderPanelContainer(885, 0, 395, 69, null, MARGIN, true);
 
+        var idleVideo = document.createElement("video");
+        idleVideo.preload = "auto";
+        idleVideo.loop = true;              // enable looping
+        idleVideo.src = "media/LIVENOWPING.webm";
+
+        var alertVideo = document.createElement("video");
+        alertVideo.preload = "auto";
+        alertVideo.loop = true;              // enable looping
+        alertVideo.src = "media/ALERT.webm";
+
+        var idleVideoTex = PIXI.Texture.fromVideo(idleVideo);
+        var idleVideoSprite = new PIXI.Sprite(idleVideoTex);
+
+        var alertVideoTex = PIXI.Texture.fromVideo(alertVideo);
+        var alertVideoSprite = new PIXI.Sprite(alertVideoTex);
+
+        this.statusContainerIdle = new StatusContainer(659, 0, idleVideoSprite, 60);
+        this.statusContainerAlert = new StatusContainer(659, 0, alertVideoSprite, 85, 0, true);
+
         this.currHeaderInfoTime = 0.0;
         this.currHeaderAlertTime = -1.0;
 
@@ -92,6 +138,9 @@ class PingHeader extends PIXI.Container {
 
         this.addChild(this.leftContainerAlert);
         this.addChild(this.rightContainerAlert);
+
+        this.addChild(this.statusContainerIdle);
+        this.addChild(this.statusContainerAlert);
 
         app.ticker.add(this.update, this);
     }
@@ -229,6 +278,8 @@ class PingHeader extends PIXI.Container {
 
             this.leftContainerAlert.fadeOut();
             this.rightContainerAlert.fadeOut();
+
+            this.statusContainerAlert.fadeOut();
         }
     }
 
@@ -260,18 +311,25 @@ class PingHeader extends PIXI.Container {
 
         this.leftContainerAlert.fadeIn();
         this.rightContainerAlert.fadeIn();
+
+        this.statusContainerAlert.fadeIn();
     }
 
     createAlert(title, content) {
         var alertTitleWidget = new PIXI.Text(
             title,
-            TEXT_STYLE,
+            TEXT_ALERT_STYLE,
         );
 
         var alertContentWidget = new PIXI.Text(
             content,
-            TEXT_STYLE,
+            TEXT_ALERT_STYLE,
         );
+
+        glow_effect = new PIXI.filters.GlowFilter(15, 5, 0, GLOW_ALERT_COLOR, 0.5)
+
+        alertTitleWidget.filters = [glow_effect]
+        alertContentWidget.filters = [glow_effect]
 
         var headerAlertObj = new HeaderInfo(
             "Alerte_" + title,

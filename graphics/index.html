@@ -7,6 +7,8 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="js/pixi.min.js"></script>
     <script src="js/type.min.js"></script>
+    <script src="js/pixi-filters.js"></script>
+    <script src="js/pixi-patch.js"></script>
     <script src="text-scrolling.js"></script>
     <script src="container-scrolling.js"></script>
     <script src="container-sliding.js"></script>
@@ -14,7 +16,6 @@
     <script src="ping-header.js"></script>
     <script src="twitch-interface.js"></script>
     <script src="countdown-widget.js"></script>
-    <script src="js/pixi-filters.js"></script>
 
 
     <body>
@@ -28,8 +29,25 @@
             resolution: 1
         });
 
-        WATCH_USER_ID = 27497503;  // diffty: 27497503  // 110690086
-        TEXT_STYLE = {fontFamily : "brownie-regular", fontSize: 40, fill : 0xE5E5E5, align : "left", letterSpacing: -5};       // 0xDBF2FF
+        TEXT_COLOR = 0xFFFFFF
+        GLOW_COLOR = 0x474747
+        TEXT_ALERT_COLOR = 0xFF94E8   //0xF369CE
+        GLOW_ALERT_COLOR = 0x430C2F
+
+        WATCH_USER_ID = 110690086;  // diffty: 27497503  // 110690086
+        TEXT_STYLE = {
+            fontFamily : "brownie-regular",fontSize: 40, fill : TEXT_COLOR, align : "left", letterSpacing: -5
+            };       // 0xDBF2FF   // > E5E5E5
+        TEXT_ALERT_STYLE = {
+            fontFamily : "brownie-regular",
+            fontSize: 40,
+            fill : 0x9B1B6C,
+            align : "left",
+            letterSpacing: -5,
+            strokeThickness: 2,
+            stroke: TEXT_ALERT_COLOR,
+        };       // 0xDBF2FF   // > E5E5E5
+        LINK_STYLE = {fontFamily : "brownie-light", fontSize: 22, fill : TEXT_COLOR, align : "left", letterSpacing: -2};       // 0xDBF2FF   // > E5E5E5
 
         document.body.appendChild(app.view);
         
@@ -78,10 +96,8 @@
 
             followersText = new PIXI.Text("", TEXT_STYLE);
             gameNameTextWidget = new PIXI.Text("", TEXT_STYLE);
-            djInfoTextWidget = new PIXI.Text("", TEXT_STYLE);
 
             lastFollowersScrollingWidget = new ScrollingContainer(followersText, 0, 0, 727, 69, 20);
-
 
             updateFollowersTextWidget();
       
@@ -90,45 +106,78 @@
             countdownWidget = new CountdownWidget(0, 0)
             countdownHeaderInfo = new HeaderInfo("TimeBeforeStart", countdownWidget, countdownTitleWidget, 3, EHeaderInfoAlign.LEFT, EHeaderInfoAlign.RIGHT);
             headerWidget.addInfo(countdownHeaderInfo);
-
-            nowPlayingGameTitleWidget = new PIXI.Text("Now Playing", TEXT_STYLE)
-            nowPlayingGameHeaderInfo = new HeaderInfo("NowPlayingGame", gameNameTextWidget, nowPlayingGameTitleWidget, 3, EHeaderInfoAlign.LEFT, EHeaderInfoAlign.RIGHT);
-            headerWidget.addInfo(nowPlayingGameHeaderInfo);
-
-            nowPlayingDjTitleWidget = new PIXI.Text("Now Playing", TEXT_STYLE)
-            nowPlayingDjHeaderInfo = new HeaderInfo("NowPlayingDj", djInfoTextWidget, nowPlayingDjTitleWidget, 3, EHeaderInfoAlign.LEFT, EHeaderInfoAlign.RIGHT);
-            headerWidget.addInfo(nowPlayingDjHeaderInfo);
-
-            followersTitleWidget = new PIXI.Text("Last Followers", TEXT_STYLE)
-            followersHeaderInfo = new HeaderInfo("LastFollowers", lastFollowersScrollingWidget, followersTitleWidget, 3, EHeaderInfoAlign.LEFT, EHeaderInfoAlign.RIGHT);
-            headerWidget.addInfo(followersHeaderInfo);
-
-
             gameNameReplicant.on("change", (newValue, oldValue) => {
                 if (newValue) {
                     gameNameTextWidget.text = `${newValue}`;
                 }
             });
       
+            // TOOD: a refacto
+            djNameTextWidget = new PIXI.Text("", TEXT_STYLE);
+
+            djSoundcloudIcon = PIXI.Sprite.fromImage('img/soundcloud-icon.png')
+            djSoundcloudTextWidget = new PIXI.Text("", LINK_STYLE);
+
+            djInstagramIcon = PIXI.Sprite.fromImage('img/instagram-icon.png')
+            djInstagramTextWidget = new PIXI.Text("", LINK_STYLE);
+
+            function updateDjInfoPosition() {
+                djSoundcloudIcon.x = djNameTextWidget.x + djNameTextWidget.width + 20;
+                djSoundcloudIcon.y = djNameTextWidget.y - 4;
+                djSoundcloudTextWidget.x = djSoundcloudIcon.x + djSoundcloudIcon.width + 10;
+                djSoundcloudTextWidget.y = djSoundcloudIcon.y -1;
+
+                djInstagramIcon.x = djNameTextWidget.x + djNameTextWidget.width + 25;
+                djInstagramIcon.y = djSoundcloudTextWidget.y + 24;
+                djInstagramTextWidget.x = djSoundcloudTextWidget.x;
+                djInstagramTextWidget.y = djInstagramIcon.y + 3;
+            }
+
+            updateDjInfoPosition();
+
+            djInfoContainer = new PIXI.Container()
+            djInfoContainer.addChild(djNameTextWidget)
+            djInfoContainer.addChild(djSoundcloudTextWidget)
+            djInfoContainer.addChild(djSoundcloudIcon)
+            djInfoContainer.addChild(djInstagramIcon)
+            djInfoContainer.addChild(djInstagramTextWidget)
+      
+
             djInfoReplicant.on("change", (newValue, oldValue) => {
                 if (newValue) {
-                    djInfoTextWidget.text = `${newValue.djName}`;
+                    djNameTextWidget.text = `${newValue.djName}`;
+                    djSoundcloudTextWidget.text = `${newValue.djSoundcloud}`;
+                    djInstagramTextWidget.text = `${newValue.djInstagram}`;
+                    updateDjInfoPosition();
                 }
             });
-      
-            countdownReplicant.on("change", (newValue, oldValue) => {
+            // End TODO
+
+
+            nowPlayingGameTitleWidget = new PIXI.Text("Now Playing", TEXT_STYLE)
+            nowPlayingGameHeaderInfo = new HeaderInfo("NowPlayingGame", gameNameTextWidget, nowPlayingGameTitleWidget, 3, EHeaderInfoAlign.LEFT, EHeaderInfoAlign.RIGHT);
+            headerWidget.addInfo(nowPlayingGameHeaderInfo);
+
+            nowPlayingDjTitleWidget = new PIXI.Text("Now Playing", TEXT_STYLE)
+            nowPlayingDjHeaderInfo = new HeaderInfo("NowPlayingDj", djInfoContainer, nowPlayingDjTitleWidget, 3, EHeaderInfoAlign.LEFT, EHeaderInfoAlign.RIGHT);
+            headerWidget.addInfo(nowPlayingDjHeaderInfo);
+
+            followersTitleWidget = new PIXI.Text("Last Followers", TEXT_STYLE)
+            followersHeaderInfo = new HeaderInfo("LastFollowers", lastFollowersScrollingWidget, followersTitleWidget, 3, EHeaderInfoAlign.LEFT, EHeaderInfoAlign.RIGHT);
+            headerWidget.addInfo(followersHeaderInfo);
+
+			countdownReplicant.on("change", (newValue, oldValue) => {
                 if (newValue) {
                     countdownWidget.setTimeLimit(newValue);
                 }
             });
 
-
-            glow_effect = new PIXI.filters.GlowFilter(15, 5, 0, 0x3D40A2, 0.5)
+            glow_effect = new PIXI.filters.GlowFilter(15, 5, 0, GLOW_COLOR, 0.5)
             
             followersText.filters = [glow_effect];
             gameNameTextWidget.filters = [glow_effect];
-            djInfoTextWidget.filters = [glow_effect];
-            lastFollowersScrollingWidget.filters = [new PIXI.filters.GlowFilter(15, 1, 0, 0x3D40A2, 0.5)];
+            djInfoContainer.filters = [glow_effect];
+            lastFollowersScrollingWidget.filters = [new PIXI.filters.GlowFilter(15, 1, 0, GLOW_COLOR, 0.5)];
             nowPlayingGameTitleWidget.filters = [glow_effect];
             nowPlayingDjTitleWidget.filters = [glow_effect];
             followersTitleWidget.filters = [glow_effect];
