@@ -31,27 +31,27 @@
 
         WATCH_USER_ID = 274584426;  //ping: 274584426 // diffty: 27497503  // 110690086
 
-        TEXT_COLOR = 0xFFFFFF
-        GLOW_COLOR = 0x4033A6
-        TEXT_ALERT_COLOR = 0xFF94E8   //0xF369CE
-        GLOW_ALERT_COLOR = 0x681349
+        TEXT_COLOR = 0xFF4444
+        GLOW_COLOR = 0x6E0D10
+        TEXT_ALERT_COLOR = 0xFF0000 // 0xFF94E8   //0xF369CE
+        GLOW_ALERT_COLOR = 0x6E0D10 // 0x681349
 
         TEXT_STYLE = {
-            fontFamily : "brownie-regular",fontSize: 40, fill : TEXT_COLOR, align : "left", letterSpacing: -5
+            fontFamily : "feral-regular",fontSize: 40, fill : TEXT_COLOR, align : "left", letterSpacing: 0
         };       // 0xDBF2FF   // > E5E5E5
 
         TEXT_ALERT_STYLE = {
-            fontFamily : "brownie-regular",
+            fontFamily : "feral-regular",
             fontSize: 40,
             //fill : 0x9B1B6C,
             fill: 0xFFFFFF,
             align : "left",
-            letterSpacing: -5,
+            letterSpacing: 0,
             //strokeThickness: 2,
             //stroke: TEXT_ALERT_COLOR,
         };       // 0xDBF2FF   // > E5E5E5
 
-        LINK_STYLE = {fontFamily : "brownie-light", fontSize: 22, fill : TEXT_COLOR, align : "left", letterSpacing: -2};       // 0xDBF2FF   // > E5E5E5
+        LINK_STYLE = {fontFamily : "feral-regular", fontSize: 22, fill : TEXT_COLOR, align : "left", letterSpacing: 0};       // 0xDBF2FF   // > E5E5E5
 
         document.body.appendChild(app.view);
         
@@ -60,8 +60,9 @@
         function load() {
             var typeLoader = new type.Loader();
       
-            typeLoader.add("brownie-light", "fonts/BROWNIElight.otf");
-            typeLoader.add("brownie-regular", "fonts/BROWNIEregular.otf");
+            //typeLoader.add("brownie-light", "fonts/BROWNIElight.otf");
+            //typeLoader.add("brownie-regular", "fonts/BROWNIEregular.otf");
+            typeLoader.add("feral-regular", "fonts/FERAL-REGULAR.TTF");
       
             typeLoader.load();
             typeLoader.once("loadComplete", setup);
@@ -105,11 +106,11 @@
 
             updateFollowersTextWidget();
       
-
+            // COUNTDOWN
             countdownTitleWidget = new PIXI.Text("Time Before Start", TEXT_STYLE)
             countdownWidget = new CountdownWidget(0, 0)
             countdownHeaderInfo = new HeaderInfo("TimeBeforeStart", countdownWidget, countdownTitleWidget, 3, EHeaderInfoAlign.LEFT, EHeaderInfoAlign.RIGHT);
-            headerWidget.addInfo(countdownHeaderInfo);
+            //headerWidget.addInfo(countdownHeaderInfo);
       
             // TOOD: a refacto
             djNameTextWidget = new PIXI.Text("", TEXT_STYLE);
@@ -226,7 +227,7 @@
                     twitchInterface.getUsersFromId(
                         followersList.map(f => f.from_id),
                         (userList) => {
-                            followersText.text = userList.map(u => u.display_name).join(" — ");
+                            followersText.text = userList.map(u => u.display_name).join("   ");
                         }
                     );
                 }

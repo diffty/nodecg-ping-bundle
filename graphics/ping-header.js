@@ -79,7 +79,9 @@ class StatusContainer extends FadingContainer {
         this.bg.drawPolygon([
             new PIXI.Point(0, 0),
             new PIXI.Point(288, 0),
+            new PIXI.Point(288, 100),
             new PIXI.Point(144, 151),
+            new PIXI.Point(0, 100),
             new PIXI.Point(0, 0),
         ])
 
@@ -114,12 +116,14 @@ class PingHeader extends PIXI.Container {
         var idleVideo = document.createElement("video");
         idleVideo.preload = "auto";
         idleVideo.loop = true;              // enable looping
-        idleVideo.src = "media/LIVENOWPING.webm";
+        //idleVideo.src = "media/LIVENOWPING.webm";
+        idleVideo.src = "media/panta_icone.webm";
 
         var alertVideo = document.createElement("video");
         alertVideo.preload = "auto";
         alertVideo.loop = true;              // enable looping
-        alertVideo.src = "media/ALERT.webm";
+        //alertVideo.src = "media/ALERT.webm";
+        alertVideo.src = "media/excla_icone.webm";
 
         var idleVideoTex = PIXI.Texture.fromVideo(idleVideo);
         var idleVideoSprite = new PIXI.Sprite(idleVideoTex);
@@ -127,8 +131,8 @@ class PingHeader extends PIXI.Container {
         var alertVideoTex = PIXI.Texture.fromVideo(alertVideo);
         var alertVideoSprite = new PIXI.Sprite(alertVideoTex);
 
-        this.statusContainerIdle = new StatusContainer(659, 0, idleVideoSprite, 60);
-        this.statusContainerAlert = new StatusContainer(659, 0, alertVideoSprite, 85, 0, true);
+        this.statusContainerIdle = new StatusContainer(667, -10, idleVideoSprite, 60);                    // 659
+        this.statusContainerAlert = new StatusContainer(667, -10, alertVideoSprite, 60, 0, true);         // 659
 
         this.currHeaderInfoTime = 0.0;
         this.currHeaderAlertTime = -1.0;
