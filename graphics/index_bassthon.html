@@ -1,0 +1,93 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Hello World</title>
+    </head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="js/pixi.min.js"></script>
+    <script src="js/pixi-filters.js"></script>
+    <script src="js/pixi-patch.js"></script>
+
+
+    <body>
+        <script type="text/javascript">
+        //Create a Pixi Application
+        let app = new PIXI.Application({
+            width: 1280, 
+            height: 720,                       
+            antialias: true, 
+            transparent: true, 
+            resolution: 1
+        });
+
+        document.body.appendChild(app.view);
+        
+        load()
+
+        function load() {
+            setup();
+        }
+
+        var thonVideo;
+        var bassVideo;
+
+        function setup() {
+            // nodecg.log.info("P I N G — BassThon Overlay System");
+
+            // Add the 'keydown' event listener to our document
+            document.addEventListener('keydown', onKeyDown);
+
+            thonVideo = document.createElement("video");
+            thonVideo.preload = "auto";
+            thonVideo.src = "media/THON OVERLAY TEST.webm";
+            thonVideo.autoplay = false;
+            thonVideo.load();
+            thonVideo.paused = true;
+
+            thonVideoTex = PIXI.Texture.fromVideo(thonVideo);
+            thonVideoSprite = new PIXI.Sprite(thonVideoTex);
+
+            bassVideo = document.createElement("video");
+            bassVideo.preload = "auto";
+            bassVideo.src = "media/bass OVERLAY TEST.webm";
+            bassVideo.autoplay = false;
+            bassVideo.load();
+            bassVideo.paused = true;
+
+            bassVideoTex = PIXI.Texture.fromVideo(bassVideo);
+            bassVideoSprite = new PIXI.Sprite(bassVideoTex);
+
+            app.stage.addChild(thonVideoSprite);
+            app.stage.addChild(bassVideoSprite);
+
+            app.ticker.add(update);
+        }
+
+        function update(delta) {
+
+        }
+
+        function onKeyDown(key) {
+            if (key.keyCode == 37) {
+                showScreen(0);
+            }
+            else if (key.keyCode == 40) {
+                showScreen(1);
+            }
+        }
+
+        function showScreen(screenId) {
+            if (screenId == 0) {
+                thonVideo.currentTime = 0;
+                thonVideo.play();
+            }
+            else {
+                bassVideo.currentTime = 0;
+                bassVideo.play();
+            }
+        }
+        </script>
+    </body>
+</html>
+
