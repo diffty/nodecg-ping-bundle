@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+	<style>
+		.monospace {
+			font-family: monospace;
+		}
+	</style>
+</head>
+<body>
+	<p>
+		<h2>STINGERZZ</h2>
+		<button id="sendBassStingerButton">SEND BASS!1!!!</button>
+		<button id="sendThonStingerButton">SEND THON1§!&!§</button>
+		<button id="sendBothStingerButton">SEND FUCKING BOTH!:&§&!&1§1</button>
+
+		<h2>SETUP</h2>
+		<label>Cooldown Time (seconds)</label><br />
+		<input id="stingerCooldownTimeInput" type="text"></input><br />
+		<button id="stingerCooldownTimeSubmitButton">Edit</button>
+		<button id="stingerCooldownTimeResetButton">Reset</button>
+		<button id="stingerCooldownTimeBurnButton">Burn</button>
+	</p>
+
+	<script>
+		const sendBassStingerButton = document.querySelector('#sendBassStingerButton');
+		const sendThonStingerButton = document.querySelector('#sendThonStingerButton');
+		const sendBothStingerButton = document.querySelector('#sendBothStingerButton');
+
+		sendBassStingerButton.onclick = () => {
+			nodecg.sendMessage("sendTeamStinger", {teamName: "bass"});
+		};
+
+		sendThonStingerButton.onclick = () => {
+			nodecg.sendMessage("sendTeamStinger", {teamName: "thon"});
+		};
+
+		sendBothStingerButton.onclick = () => {
+			nodecg.sendMessage("sendTeamStinger", {teamName: "both"});
+		};
+
+		const stingerCooldownTimeReplicant = nodecg.Replicant(
+            "bassthonStingerCooldownTime",
+            {defaultValue: 60}
+        );
+		stingerCooldownTimeReplicant.on('change', (newValue, oldValue) => {
+            // The value of the Replicant has changed somewhere in NodeCG,
+            // this could be another dashboard panel, a server initiated change,
+            // or the doing of another user accessing your dashboard panel.
+            stingerCooldownTimeInput.value = newValue;
+        });
+
+		stingerCooldownTimeSubmitButton.onclick = () => {
+            stingerCooldownTimeReplicant.value = stingerCooldownTimeInput.value;
+        };
+
+        stingerCooldownTimeResetButton.onclick = () => {
+            nodecg.sendMessage("cooldownAction", {action: "reset"});
+        };
+
+        stingerCooldownTimeBurnButton.onclick = () => {
+            nodecg.sendMessage("cooldownAction", {action: "burn"});
+        };
+	</script>
+</body>
+</html>
