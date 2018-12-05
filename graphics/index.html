@@ -78,7 +78,7 @@
             nodecg.listenFor("sendAlert", (value, ack) => {
                 headerWidget.createAlert(value.title, value.content);
             });
-            
+
             const gameNameReplicant = nodecg.Replicant(
                 "gameName",
                 {defaultValue: ""}
@@ -109,7 +109,7 @@
             countdownTitleWidget = new PIXI.Text("Time Before Start", TEXT_STYLE)
             countdownWidget = new CountdownWidget(0, 0)
             countdownHeaderInfo = new HeaderInfo("TimeBeforeStart", countdownWidget, countdownTitleWidget, 3, EHeaderInfoAlign.LEFT, EHeaderInfoAlign.RIGHT);
-            headerWidget.addInfo(countdownHeaderInfo);
+            // headerWidget.addInfo(countdownHeaderInfo);
       
             // TOOD: a refacto
             djNameTextWidget = new PIXI.Text("", TEXT_STYLE);
