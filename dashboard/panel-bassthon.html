@@ -24,14 +24,20 @@
 
 		<h2>ARDUINO SETUP</h2>
 		<label>Serial Port</label><br />
-		<input id="arduinoSerialPort" type="text"></input><br />
-		<button id="arduinoSerialPortSubmitButton">Edit</button>
+		<input id="arduinoSerialPortInput" type="text"></input><br />
+		<button id="arduinoSerialPortSubmitButton">Edit</button><br />
+		<button id="resetSerialConnection">Reset connection</button>
+
 	</p>
 
 	<script>
 		const sendBassStingerButton = document.querySelector('#sendBassStingerButton');
 		const sendThonStingerButton = document.querySelector('#sendThonStingerButton');
 		const sendBothStingerButton = document.querySelector('#sendBothStingerButton');
+        const arduinoSerialPortInput = document.querySelector('#arduinoSerialPortInput');
+        const arduinoSerialPortSubmitButton = document.querySelector('#arduinoSerialPortSubmitButton');
+        const resetSerialConnection = document.querySelector('#resetSerialConnection');
+
 
 		sendBassStingerButton.onclick = () => {
 			nodecg.sendMessage("sendTeamStinger", {teamName: "bass"});
@@ -50,9 +56,6 @@
             {defaultValue: 60}
         );
 		stingerCooldownTimeReplicant.on('change', (newValue, oldValue) => {
-            // The value of the Replicant has changed somewhere in NodeCG,
-            // this could be another dashboard panel, a server initiated change,
-            // or the doing of another user accessing your dashboard panel.
             stingerCooldownTimeInput.value = newValue;
         });
 
@@ -67,6 +70,22 @@
         stingerCooldownTimeBurnButton.onclick = () => {
             nodecg.sendMessage("cooldownAction", {action: "burn"});
         };
+
+        const arduinoSerialPortReplicant = nodecg.Replicant(
+            "arduinoSerialPort",
+            {defaultValue: "COM12"}
+        );
+		arduinoSerialPortReplicant.on('change', (newValue, oldValue) => {
+            arduinoSerialPortInput.value = newValue;
+        });
+        arduinoSerialPortSubmitButton.onclick = () => {
+            arduinoSerialPortReplicant.value = arduinoSerialPortInput.value;
+        };
+        
+        resetSerialConnection.onclick = () => {
+            nodecg.sendMessage("resetSerialConnection", {});
+        };
+
 	</script>
 </body>
 </html>

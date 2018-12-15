@@ -46,6 +46,11 @@
         "file": "index-bassthon.html",
         "width": 1280,
         "height": 720
+      },
+      {
+        "file": "index-bassthon-soundonly.html",
+        "width": 1280,
+        "height": 720
       }
     ]
   },

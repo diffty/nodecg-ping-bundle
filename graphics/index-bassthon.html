@@ -38,23 +38,21 @@
         var currentThonCooldownTime;
 
         function setup() {
-            nodecg.log.info("P I N G — Overlay System — BassThon™ Addon");
-
-            // Add the 'keydown' event listener to our document
-            document.addEventListener('keydown', onKeyDown);
-
             thonVideo = document.createElement("video");
             thonVideo.src = "media/THON OVERLAY TEST.webm";
             thonVideo.preload = "none";
             thonVideo.paused = true;
             thonVideo.autoplay = false;
-            //thonVideo.load();
+            thonVideo.addEventListener('loadeddata', function() {
+                thonVideo.paused = true;
+            }, false);
+            thonVideo.load();
 
             thonVideoTex = PIXI.Texture.fromVideo(thonVideo);
             thonVideoSprite = new PIXI.Sprite(thonVideoTex);
 
             bassVideo = document.createElement("video");
-            bassVideo.src = "media/bass OVERLAY TEST.webm";
+            bassVideo.src = "media/BASS OVERLAY TEST.webm";
             bassVideo.preload = "none";
             bassVideo.autoplay = false;
             bassVideo.addEventListener('loadeddata', function() {
@@ -67,102 +65,29 @@
 
             app.stage.addChild(thonVideoSprite);
             app.stage.addChild(bassVideoSprite);
-            
-            currentBassCooldownTime = stingerCooldownTime;
-            currentThonCooldownTime = stingerCooldownTime;
 
-            const stingerCooldownTimeReplicant = nodecg.Replicant(
-                "bassthonStingerCooldownTime",
-                {defaultValue: 60}
-            );
-
-            stingerCooldownTimeReplicant.on("change", (newValue, oldValue) => {
-                if (newValue) {
-                    stingerCooldownTime = currentBassCooldownTime = currentThonCooldownTime = newValue;
-                }
+            nodecg.listenFor("showScreen", (value, ack) => {
+                showScreen(value.videoId);
             });
-
-            nodecg.listenFor("cooldownAction", (value, ack) => {
-                if (value.action == "reset") {
-                    currentBassCooldownTime = currentThonCooldownTime = stingerCooldownTime;
-                }
-                else if (value.action == "burn") {
-                    currentBassCooldownTime = currentThonCooldownTime = 0;
-                }
-            });
-
-            nodecg.listenFor("sendTeamStinger", (value, ack) => {
-                sendTeamStinger(value.teamName)
-            });
-
-            nodecg.listenFor("physicalButtonStateChanged", (value, ack) => {
-                if (value.buttonState == true) {
-                    switch (value.buttonName) {
-                        case "Button1":
-                            sendTeamStinger("bass");
-                            break;
-
-                        case "Button2":
-                            sendTeamStinger("thon");
-                            break;
-                    }
-                }
-            });
-
-            app.ticker.add(update);
-        }
-
-        function update(delta) {
-            if (currentBassCooldownTime > 0) {
-                currentBassCooldownTime -= app.ticker.elapsedMS / 1000.;
-            }
-
-            if (currentThonCooldownTime > 0) {
-                currentThonCooldownTime -= app.ticker.elapsedMS / 1000.;
-            }
-        }
-
-        function onKeyDown(key) {
-            /*if (key.keyCode == 37) {
-                showScreen(0);
-            }
-            else if (key.keyCode == 40) {
-                showScreen(1);
-            }*/
-        }
-
-        function sendTeamStinger(teamName) {
-            if (teamName == "bass") {
-                showScreen(0);
-            }
-            else if (teamName == "thon") {
-                showScreen(1);
-            }
-            else if (teamName == "both") {
-                showScreen(0);
-                showScreen(1);
-            }
         }
 
         function showScreen(screenId) {
+            console.log(screenId);
             if (screenId == 0) {
-                if (currentBassCooldownTime <= 0) {
-                    if (bassVideo.paused) {
-                        bassVideo.currentTime = 0;
-                        bassVideo.play();
-                        currentBassCooldownTime = stingerCooldownTime;
-                    }
-                }
+                //if (bassVideo.paused) {
+                    bassVideo.currentTime = 0;
+                    bassVideo.play();
+                    return true;
+                //}
             }
             else if (screenId == 1) {
-                if (currentThonCooldownTime <= 0) {
-                    if (thonVideo.paused) {
-                        thonVideo.currentTime = 0;
-                        thonVideo.play();
-                        currentThonCooldownTime = stingerCooldownTime;
-                    }
-                }
+                //if (thonVideo.paused) {
+                    thonVideo.currentTime = 0;
+                    thonVideo.play();
+                    return true;
+                //}
             }
+            return false;
         }
         </script>
     </body>
