@@ -1,6 +1,7 @@
-var EHeaderInfo_Type = {
-
-}
+var ALERT_SYMBOL_COLOR = 0x000000;     // 0x304895;  //3E070F
+var ALERT_TEXT_COLOR = 0x000000;     // 0x304895;
+var ALERT_DURATION = 3;
+var MARGIN = 15
 
 var EHeaderInfoAlign = {
     LEFT: 0,
@@ -18,12 +19,6 @@ class HeaderInfo {
         this.contentRightAlign = contentRightAlign;
     }
 }
-
-var ALERT_SYMBOL_COLOR = 0x000000;     // 0x304895;  //3E070F
-var ALERT_TEXT_COLOR = 0x000000;     // 0x304895;
-var ALERT_DURATION = 3;
-var MARGIN = 15
-
 
 class HeaderPanelContainer extends FadingContainer {
     constructor(x, y, width, height, contentWidget, margin=0, isAlert=false) {

@@ -29,7 +29,7 @@
             resolution: 1
         });
 
-        WATCH_USER_ID = 274584426;  //ping: 274584426 // diffty: 27497503  // 110690086
+        WATCH_TWITCH_USER_ID = 274584426;  //ping: 274584426 // diffty: 27497503  // 110690086
 
         TEXT_COLOR = 0xFFFFFF
         GLOW_COLOR = 0x4033A6
@@ -194,7 +194,7 @@
             this.watchFollowersInterval = setInterval(
                 () => {
                     twitchInterface.watchNewFollowers(
-                        WATCH_USER_ID,
+                        WATCH_TWITCH_USER_ID,
                         (newFollowerInfo) => {
                             twitchInterface.getUsersFromId(
                                 [newFollowerInfo.from_id],
@@ -221,7 +221,7 @@
 
         function updateFollowersTextWidget() {
             twitchInterface.getFollowers(
-                WATCH_USER_ID,
+                WATCH_TWITCH_USER_ID,
                 (followersList) => {
                     twitchInterface.getUsersFromId(
                         followersList.map(f => f.from_id),
