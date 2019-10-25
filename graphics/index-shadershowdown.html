@@ -1,0 +1,91 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Hello World</title>
+    </head>
+    <script src="js/jquery-3.4.1.min.js"></script>
+    <script src="js/pixi.min.js"></script>
+    <script src="js/type.min.js"></script>
+    <script src="js/pixi-filters.js"></script>
+    <script src="js/pixi-patch.js"></script>
+    <script src="text-scrolling.js"></script>
+    <script src="container-scrolling.js"></script>
+    <script src="container-sliding.js"></script>
+    <script src="container-fading.js"></script>
+    <script src="ping-header.js"></script>
+    <script src="twitch-interface.js"></script>
+    <script src="countdown-widget.js"></script>
+
+    <body>
+        <script type="text/javascript">
+        let app = new PIXI.Application({
+            width: 1920, 
+            height: 1080,                       
+            antialias: true, 
+            transparent: true, 
+            resolution: 1
+        });
+
+        document.body.appendChild(app.view);
+        
+        load()
+
+        function load() {
+            var typeLoader = new type.Loader();
+      
+            typeLoader.add("brownie-light", "fonts/BROWNIElight.otf");
+            typeLoader.add("brownie-regular", "fonts/BROWNIEregular.otf");
+            
+            typeLoader.add("bebasneue-book", "fonts/BebasNeue-Book.otf");
+            typeLoader.add("bebasneue-bold", "fonts/BebasNeue-Bold.otf");
+            
+            typeLoader.load();
+            typeLoader.once("loadComplete", setup);
+        }
+
+        function setup() {
+            nodecg.log.info("C O O K I E  P A R T Y  2 0 1 9 — Overlay System");
+
+            const countdownReplicant = nodecg.Replicant(
+                "countdownTimestamp",
+                { defaultValue: -1 }
+            );
+
+            var countdownTextStyle = {
+                fontFamily : "bebasneue-bold",fontSize: 40, fill: 0xFF0000, align : "left"
+            };
+
+            countdownWidget = new CountdownWidget(0, 0, countdownTextStyle);
+            
+			/*countdownReplicant.on("change", (newValue, oldValue) => {
+                if (newValue) {
+                    countdownWidget.setTimeRemaining(newValue);
+                    countdownWidget.reset();
+                }
+            });*/
+
+            nodecg.listenFor("countdownReset", (value, ack) => {
+                countdownWidget.setTimeRemaining(value.newTimelimit);
+                countdownWidget.reset();
+            });
+
+            nodecg.listenFor("countdownStart", (value, ack) => {
+                countdownWidget.start();
+            });
+
+            nodecg.listenFor("countdownPause", (value, ack) => {
+                countdownWidget.pause();
+            });
+
+            app.stage.addChild(countdownWidget);
+            app.ticker.add(update);
+        }
+
+        function update(delta) {
+
+        }
+        </script>
+    </body>
+</html>
+

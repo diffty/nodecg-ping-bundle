@@ -1,8 +1,8 @@
 {
-  "name": "ping",
+  "name": "cookieparty2019",
   "version": "0.0.0",
-  "description": "An overlay developped for the futuristic groundbreaking disruptive intuitive lightweight PING live show",
-  "homepage": "http://www.latreve.fr",
+  "description": "An overlay developed for the fantastic hunger-killing sugar powered anaglyphic COOKIE PARTY 2019",
+  "homepage": "http://cookie.paris",
   "author": {
     "name": "DiFFtY",
     "email": "diffty@gmail.com",
@@ -27,30 +27,23 @@
         "width": 2,
         "file": "panel.html",
         "headerColor": "#525F78"
-      },
-      {
-        "name": "panel-bassthon",
-        "title": "BASSTHON",
-        "width": 2,
-        "file": "panel-bassthon.html",
-        "headerColor": "#525F78"
       }
     ],
     "graphics": [
       {
         "file": "index.html",
-        "width": 1280,
-        "height": 720
+        "width": 1920,
+        "height": 1080
       },
       {
-        "file": "index-bassthon.html",
-        "width": 1280,
-        "height": 720
+        "file": "index-shadershowdown.html",
+        "width": 1920,
+        "height": 1080
       },
       {
-        "file": "index-bassthon-soundonly.html",
-        "width": 1280,
-        "height": 720
+        "file": "index-title.html",
+        "width": 1920,
+        "height": 1080
       }
     ]
   },

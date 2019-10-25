@@ -1,9 +1,11 @@
 class CountdownWidget extends PIXI.Container {
-	constructor(x, y) {
+	constructor(x, y, textStyle, isRunning, initTimeRemaining) {
 		super(x, y)
 
-		this.timelimit = -1;
-		this.textWidget = new PIXI.Text("00:00:00", TEXT_STYLE);
+		this.initTimeRemaining = initTimeRemaining;
+		this.timeRemaining = initTimeRemaining;
+		this.isRunning = isRunning || false;
+		this.textWidget = new PIXI.Text("00:00:00", textStyle);
 
 		this.addChild(this.textWidget);
 
@@ -12,31 +14,55 @@ class CountdownWidget extends PIXI.Container {
 		this.animTime = 0;
 	}
 
-	setTimeLimit(newTimestamp) {
-		this.timelimit = newTimestamp;
+	setTimeRemaining(newTimeRemaining) {
+		this.initTimeRemaining = newTimeRemaining;
+		this.timeRemaining = newTimeRemaining;
+		this.updateText();
+	}
+
+	setIsRunning(newIsRunning) {
+		this.isRunning = newIsRunning;
+	}
+
+	start() {
+		this.setIsRunning(true);
+	}
+
+	stop() {
+		this.setIsRunning(false);
+	}
+
+	reset() {
+		this.setIsRunning(false);
+		this.setTimeRemaining(this.initTimeRemaining);
+	}
+
+	updateText() {
+		var hours = Math.floor(this.timeRemaining / 60. / 60.);
+		var minutes = Math.floor(this.timeRemaining / 60.) % 60;
+		var seconds = Math.floor(this.timeRemaining) % 60;
+		this.textWidget.text = hours.toString().padStart(2, '0') + ":" + minutes.toString().padStart(2, '0') + ":" + seconds.toString().padStart(2, '0');
 	}
 
 	update(delta) {
-		var timeCurrent = new Date().getTime();
-		var timeLimit = new Date(this.timelimit);
-		var timeRemaining = Math.floor(timeLimit - timeCurrent);
+		if (this.isRunning) {
+			this.timeRemaining -= (app.ticker.elapsedMS / 1000.);
 
-		if (timeRemaining <= 0) {
-			this.textWidget.text = "00:00:00"
-
-			if (Math.floor((timeCurrent / 500) % 2) == 0) {
-				this.alpha = 0;
+			if (this.timeRemaining <= 0) {
+				this.textWidget.text = "00:00:00"
+				if (Math.floor((Math.abs(this.timeRemaining))) % 2 == 0) {
+					this.alpha = 0;
+				}
+				else {
+					this.alpha = 1;
+				}
 			}
 			else {
-				this.alpha = 1;
+				if (this.isRunning === true) {
+					this.alpha = 1;
+					this.updateText();
+				}
 			}
-		}
-		else {
-			this.alpha = 1;
-			var hours = Math.floor((timeRemaining / 1000) / 3600);
-			var minutes = Math.floor((timeRemaining / 1000) / 60);
-			var seconds = Math.floor((timeRemaining / 1000) % 60);
-			this.textWidget.text = hours.toString().padStart(2, '0') + ":" + minutes.toString().padStart(2, '0') + ":" + seconds.toString().padStart(2, '0');
 		}
 	}
 }

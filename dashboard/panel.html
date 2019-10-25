@@ -10,115 +10,58 @@
 </head>
 <body>
     <p>
-        <h2>Game</h2>
+        <h2>CURRENT EVENT</h2>
         <label>Name</label><br />
-        <input id="gameNameInput" type="text"></input><br />
-        <button id="gameNameSubmitButton">Edit</button>
+        <input id="eventNameInput" type="text"></input><br />
+        <button id="eventNameSubmitButton">Edit</button>
     </p>
 
     <p>
-        <h2>DJ</h2>
-        <label>Name</label><br />
-        <input id="djNameInput" type="text"></input><br />
-        <label>Soundcloud</label><br />
-        <input id="djSoundcloudInput" type="text"></input><br />
-        <label>Instagram</label><br />
-        <input id="djInstagramInput" type="text"></input><br />
-        <button id="djInfoSubmitButton">Edit</button>
-    </p>
-
-    <p>
-        <h2>Alerts</h2>
-        <input id="alertTitleText" type="text"></input><br />
-        <input id="alertContentText" type="text"></input><br />
-        <button id="sendAlert">Send</button>
-    </p>
-
-    <p>
-        <h2>Countdown</h2>
+        <h2>COUNTDOWN</h2>
         <input id="countdownHourInput" type="text"></input><br />
         <input id="countdownMinuteInput" type="text"></input><br />
         <input id="countdownSecondInput" type="text"></input><br />
-        <button id="countdownSubmitButton">Send</button>
+        <button id="countdownStartButton">Start</button>
+        <button id="countdownPauseButton">Pause</button>
+        <button id="countdownResetButton">Reset</button>
     </p>
 
     <script>
-        const gameNameInput = document.querySelector('#gameNameInput');
-        const gameNameSubmitButton = document.querySelector('#gameNameSubmitButton');
-        const alertTitleText = document.querySelector('#alertTitleText');
-        const alertContentText = document.querySelector('#alertContentText');
-        const djNameInput = document.querySelector('#djNameInput');
-        const djSoundcloudInput = document.querySelector('#djSoundcloudInput');
-        const djInstagramInput = document.querySelector('#djInstagramInput');
-        const djInfoSubmitButton = document.querySelector('#djInfoSubmitButton');
+        const eventNameInput = document.querySelector('#eventNameInput');
+        const eventNameSubmitButton = document.querySelector('#eventNameSubmitButton');
         const countdownHourInput = document.querySelector('#countdownHourInput');
         const countdownMinuteInput = document.querySelector('#countdownMinuteInput');
         const countdownSecondInput = document.querySelector('#countdownSecondInput');
-        const countdownSubmitButton = document.querySelector('#countdownSubmitButton');
+        const countdownStartButton = document.querySelector('#countdownStartButton');
 
-        const gameNameReplicant = nodecg.Replicant(
-            "gameName",
+        const eventNameReplicant = nodecg.Replicant(
+            "eventName",
             {defaultValue: ""}
-        );
-        const djInfoReplicant = nodecg.Replicant(
-            "djInfo",
-            {
-                defaultValue: {
-                    djName: "",
-                    djSoundcloud: "",
-                    djInstagram: "",
-                }
-            }
         );
         const contdownReplicant = nodecg.Replicant(
             "countdownTimestamp", { defaultValue: -1 }
         );
 
-        gameNameReplicant.on('change', (newValue, oldValue) => {
-            // The value of the Replicant has changed somewhere in NodeCG,
-            // this could be another dashboard panel, a server initiated change,
-            // or the doing of another user accessing your dashboard panel.
-            gameNameInput.value = newValue;
+        eventNameReplicant.on('change', (newValue, oldValue) => {
+            eventNameInput.value = newValue;
         });
 
-        djInfoReplicant.on('change', (newValue, oldValue) => {
-            // The value of the Replicant has changed somewhere in NodeCG,
-            // this could be another dashboard panel, a server initiated change,
-            // or the doing of another user accessing your dashboard panel.
-            if (newValue) {
-                djNameInput.value = newValue.djName;
-                djSoundcloudInput.value = newValue.djSoundcloud;
-                djInstagramInput.value = newValue.djInstagram;
-            }
-        });
-
-        gameNameSubmitButton.onclick = () => {
-            // A Replicant can be modified by modifying its `value`.
-            gameNameReplicant.value = gameNameInput.value;
+        eventNameSubmitButton.onclick = () => {
+            eventNameReplicant.value = eventNameInput.value;
         };
 
-        djInfoSubmitButton.onclick = () => {
-            // A Replicant can be modified by modifying its `value`.
-            djInfoReplicant.value = {
-                djName: djNameInput.value,
-                djSoundcloud: djSoundcloudInput.value,
-                djInstagram: djInstagramInput.value,
-            };
+        countdownResetButton.onclick = () => {
+            nodecg.sendMessage("countdownReset", {
+                newTimelimit: parseInt(countdownHourInput.value) * 3600 + parseInt(countdownMinuteInput.value) * 60 + parseInt(countdownSecondInput.value)
+            });
         };
 
-        countdownSubmitButton.onclick = () => {
-            // A Replicant can be modified by modifying its `value`.
-            var currDate = new Date();
-            
-            var newDate = new Date();
-            newDate.setHours(countdownHourInput.value);
-            newDate.setMinutes(countdownMinuteInput.value);
-            newDate.setSeconds(countdownSecondInput.value);
-            contdownReplicant.value = newDate.getTime();
+        countdownStartButton.onclick = () => {
+            nodecg.sendMessage("countdownStart");
         };
 
-        sendAlert.onclick = () => {
-            nodecg.sendMessage("sendAlert", {title: alertTitleText.value, content: alertContentText.value});
+        countdownPauseButton.onclick = () => {
+            nodecg.sendMessage("countdownPause");
         };
     </script>
 </body>
